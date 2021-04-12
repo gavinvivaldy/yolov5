@@ -402,6 +402,10 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         self.labels = list(labels)
         self.shapes = np.array(shapes, dtype=np.float64)
         self.img_files = list(cache.keys())  # update
+        temp = []
+        for x in self.img_files: temp.append(x.replace('\\','/'))
+        self.img_files = temp
+        del temp
         self.label_files = img2label_paths(cache.keys())  # update
         if single_cls:
             for x in self.labels:
