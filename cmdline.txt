@@ -1,0 +1,8 @@
+py .\labelImg.py ..\tcmproject\images\X4\ .\predefined_class.txt
+
+.\env\Scripts\activate
+py detect.py --img-size 512 --nosave --skip-class 60 --device 0 --source ..\images\X4\ --herb-folder 4 --weights yolov5x6.pt
+py detect.py --img-size 512 --nosave --skip-class 60 --device 0 --source ..\images\X4\ --herb-folder 4 --weights yolov5x.pt
+py detect.py --img-size 512 --nosave --skip-class 60 --device 0 --source ..\images\X4\ --herb-folder 4 --weights yolov5s6.pt
+py detect.py --img-size 512 --nosave --skip-class 60 --device 0 --source ..\images\X4\ --herb-folder 4 --weights yolov5s.pt
+py detect.py --img-size 512 --nosave --skip-class 60 --device 0 --source ..\images\X4\ --herb-folder 4 --weights best.pt
