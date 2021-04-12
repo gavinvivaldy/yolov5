@@ -28,7 +28,7 @@ def extract_pred(p, det, gn):
             line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
             with open(pred_save_path + '.txt', 'a') as f:
                 f.write(('%g ' * len(line)).rstrip() % line + '\n')
-            print(f"Success save label for {p.name.split('.')[0]}")
+                print(f"Success save label for {p.name.split('.')}\n")
 
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
