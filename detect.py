@@ -2,6 +2,7 @@ import argparse
 import time
 from pathlib import Path
 
+import os
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
@@ -15,16 +16,19 @@ from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 
-def extract_pred():
+def extract_pred(p, det, gn):
     pred_save_path = f"../labels/X{opt.herb_folder}/{p.name.split('.')[0]}"
-    if not os.path.exists(pred_save_path + '.txt'):
+    recorded = False
+    if not os.path.exists(pred_save_path + '.txt') and recorded is False:
         for *xyxy, conf, clss in reversed(det):
-            if clss in torch.tensor(opt.skip_class): continue  # skip class
+            if clss in torch.tensor(opt.skip_class, device=torch.device('cuda:0')): continue  # skip class
+            recorded = True
             cls = opt.herb_folder - 1
             xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
             line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
             with open(pred_save_path + '.txt', 'a') as f:
                 f.write(('%g ' * len(line)).rstrip() % line + '\n')
+            print(f"Success save label for {p.name.split('.')[0]}")
 
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
@@ -107,7 +111,7 @@ def detect(save_img=False):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
                 # Extract prediction label automatically to tcmproject label
-                extract_pred()
+                extract_pred(p, det, gn)
 
                 # Print results
                 for c in det[:, -1].unique():
@@ -179,8 +183,8 @@ if __name__ == '__main__':
     parser.add_argument('--project', default='runs/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
-    parser.add_argument('--skip-class', type=list, default=[], help='inference size (pixels)')
-    parser.add_argument('--herb-folder', type=int, default=0, help='inference size (pixels)')
+    parser.add_argument('--skip-class', nargs="*", type=int, help='class number to skip prediction')
+    parser.add_argument('--herb-folder', type=int, default=0, help='Herb folder')
     opt = parser.parse_args()
     print(opt)
     check_requirements(exclude=('pycocotools', 'thop'))
